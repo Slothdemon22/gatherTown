@@ -1,4 +1,4 @@
-# Gather Town Clone 🚀 *(Ambitious Project)*
+# Gather Town Clone 🚀
 
 A **Gather Town Clone** is a virtual space where users can interact with each other in real-time using avatars, chat, and video calls. This **ambitious project** aims to replicate the core features of Gather Town, such as:
 
