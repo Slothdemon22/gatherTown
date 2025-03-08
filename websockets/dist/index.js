@@ -1,34 +1,19 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const ws_1 = require("ws");
-const express_1 = __importDefault(require("express"));
 const http_1 = require("http");
-const app = (0, express_1.default)();
-const server = (0, http_1.createServer)(app);
-const wss = new ws_1.WebSocketServer({ server });
-wss.on("connection", (ws) => {
-    console.log("Client connected");
-    ws.on("message", (message) => {
-        console.log("Received:", message.toString());
-        // Ensure the message is in JSON format
-        try {
-            const data = JSON.parse(message.toString());
-            // Broadcast message to all clients
-            wss.clients.forEach((client) => {
-                if (client.readyState === ws.OPEN) {
-                    client.send(JSON.stringify(data));
-                }
-            });
-        }
-        catch (error) {
-            console.error("Invalid JSON received:", error);
-        }
+const server = (0, http_1.createServer)();
+const wss = new ws_1.WebSocketServer({ server: server });
+wss.on("connection", function connection(ws) {
+    ws.on("message", function message(message) {
+        console.log(JSON.parse(message));
     });
-    ws.send(JSON.stringify({ type: "info", message: "Welcome to the WebSocket server!" }));
+    ws.on('close', function close() {
+        console.log("disconnected", ws);
+    });
+    ws.send(JSON.stringify({ Status: `Connected User is ${ws.OPEN}` }));
 });
-server.listen(8080, () => {
-    console.log("Server started on port 8080");
+const PORT = 8080;
+server.listen(PORT, function listen() {
+    console.log(`Listening on Port ${PORT}`);
 });

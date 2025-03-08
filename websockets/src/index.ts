@@ -1,36 +1,24 @@
-import { WebSocketServer } from "ws";
+import { RawData, WebSocket, WebSocketServer } from "ws";
 import express from "express";
-import { createServer } from "http";
+import http, { createServer } from "http";
 
-const app = express();
-const server = createServer(app);
+const server = createServer();
+const wss = new WebSocketServer({ server: server });
 
-const wss = new WebSocketServer({ server });
-
-wss.on("connection", (ws) => {
-    console.log("Client connected");
-
-    ws.on("message", (message) => {
-        console.log("Received:", message.toString());
-
-        // Ensure the message is in JSON format
-        try {
-            const data = JSON.parse(message.toString());
-
-            // Broadcast message to all clients
-            wss.clients.forEach((client) => {
-                if (client.readyState === ws.OPEN) {
-                    client.send(JSON.stringify(data));
-                }
-            });
-        } catch (error) {
-            console.error("Invalid JSON received:", error);
-        }
+wss.on("connection", function connection(ws: WebSocket) {
+    
+    ws.on("message", function message(message:BinaryType)
+    {
+        console.log(JSON.parse(message))
     });
-
-    ws.send(JSON.stringify({ type: "info", message: "Welcome to the WebSocket server!" }));
+    ws.on('close', function close()
+    { 
+     console.log("disconnected",ws)
+    })
+    ws.send(JSON.stringify({Status:`Connected User is ${ws.OPEN}`}))
 });
-
-server.listen(8080, () => {
-    console.log("Server started on port 8080");
-});
+const PORT = 8080;
+server.listen(PORT, function listen()
+{
+    console.log(`Listening on Port ${PORT}`);
+})
