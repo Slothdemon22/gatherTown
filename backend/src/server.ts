@@ -11,7 +11,8 @@ dotenv.config();
 app.use(cors({
   exposedHeaders: ["token"]
 }));
-app.use(express.json());
+app.use(express.json())
+
 
 connectdb();
 app.use("/api/auth",authRoutes);
