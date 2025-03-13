@@ -4,11 +4,14 @@ import User from "../models/UserModel";
 import jwt from "jsonwebtoken";
 
 export const register: RequestHandler = async (req, res) => {
+  console.log("in register");
+  console.log(req.body);
   const { name, email, password } = req.body;
   try {
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email:email });
     if (existingUser) {
-       res.status(400).json("Email already exists");
+      res.status(400).json({ message: "Email already exists" });
+     // console.log("after")
        return;
     }
 
@@ -23,7 +26,7 @@ export const register: RequestHandler = async (req, res) => {
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET as string);
     res.setHeader("Authorization", `Bearer ${token}`);
      res.status(201).json({
-      message: "User created successfully",
+      message: "User created successfully"
       
     });
   } catch (err) {
