@@ -1,234 +1,221 @@
 "use client";
-import Image from "next/image";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { FormEvent, useCallback } from "react";
+
+import type React from "react";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import Image from "next/image";
+import { userSchemaSignUp } from "@/app/schemas/userSchema";
+import { ArrowLeft } from "lucide-react";
+
+// Define the schema
 
 export default function RegistrationPage() {
-  const handleSubmitSignUp = useCallback(
-    async (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
+  const handleSubmitSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-      const form = e.target as HTMLFormElement;
-      const email = (form.elements.namedItem("email") as HTMLInputElement)
-        ?.value;
-      const password = (form.elements.namedItem("password") as HTMLInputElement)
-        ?.value;
-      const repeatPassword = (
-        form.elements.namedItem("repeat-password") as HTMLInputElement
-      )?.value;
-      console.log(email);
-      console.log(password);
-      console.log(repeatPassword);
-      const name = "houhwdouqoqjd";
-      try {
-        const res: any = await fetch(
-          "http://localhost:5000/api/auth/register",
-          {
-            method: "POST",
-            headers: {
-              "Content-type": "application/json",
-              // Authorization:
-            },
-            body: JSON.stringify({
-              name: name,
-              email: email,
-              password: password,
-            }),
-          }
-        )
-          .then((res) => {
-            console.log(res);
+    const form = new FormData(e.currentTarget);
 
-            if (!res.ok) {
-              throw new Error("Skibidi");
-            }
+    // Extract individual fields
+    const name = form.get("name") as string;
+    const email = form.get("email") as string;
+    const password = form.get("password") as string;
 
-            return res.json();
-          })
-          .then((data) => {
-              console.log(data);
-              toast.success("Account created successfully");    
-          });
-      } catch (error) {
-          console.log(error);
-          toast.error("Account creation failed");
+    
+    const nameValidation = userSchemaSignUp.pick({ name: true }).safeParse({ name });
+    const emailValidation = userSchemaSignUp.pick({ email: true }).safeParse({ email });
+    const passwordValidation = userSchemaSignUp.pick({ password: true }).safeParse({ password });
+
+    // Handle validation errors
+    if (!nameValidation.success) {
+      toast.error("Name is required");
+      return;
+    }
+
+    if (!emailValidation.success) {
+      toast.error("Not a valid email format", {
+        style: { backgroundColor: "#FF5252", color: "white" },
+        duration: 6000,
+      });
+      return;
+    }
+
+    if (!passwordValidation.success) {
+      toast.error("Password must be at least 8 characters long");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to register");
       }
-    },
-    []
-  );
+
+      const data = await response.json();
+      toast.success("Account created successfully!", {
+        style: { backgroundColor: "#66C266", color: "white" },
+      });
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+      toast.error("Account creation failed");
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
       {/* Left Column - Visual & Branding (45%) */}
-      <div className="relative flex w-full flex-col justify-between bg-[#0052cc] p-8 text-white md:w-[45%]">
-        {/* Background Image with Overlay */}
-        <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden">
-          <Image
-            src="/SignIn-bg.png"
-            alt="Gaming controller background"
-            fill
-            className="object-contain object-center opacity-30 scale-125"
-            priority
-          />
-        </div>
-
-        {/* Logo */}
-        <div className="relative z-10">
-          <div className="flex items-center gap-2">
-            <Image
-              src="/SignIn-logo.png"
-              alt="Gamers Logo"
-              width={40}
-              height={40}
-            />
-            <span className="text-xl font-bold">Gamers</span>
-          </div>
-        </div>
-
-        {/* Quote */}
-        <div className="relative z-10 mx-auto max-w-md rounded-lg bg-[#0046ad]/30 p-6">
-          <p className="text-lg font-light leading-relaxed">
-            In this digital space, every interaction is a moment of connection,
-            shaping the experience of our shared virtual world
+      <div className="relative w-full md:w-[45%] bg-gray-900 text-white flex flex-col justify-center items-center p-8">
+        {/* Background Image */}
+        <Image
+          src="/SignUp-bg.png"
+          alt="Gaming controller background"
+          fill
+          className="object-cover absolute"
+          priority
+        />
+        <div className="relative z-10 text-center max-w-md px-4">
+          <h1 className="text-4xl font-bold mb-6">Join Us Today!</h1>
+          <p className="text-xl mb-8">
+            Unlock a world of gaming experiences and be part of our community.
           </p>
-          <p className="mt-4 text-right text-sm font-medium">Gather Town</p>
-        </div>
-
-        {/* Decorative Corner Bracket */}
-        <div className="relative z-10 self-end">
-          <div className="h-8 w-8 border-b-2 border-r-2 border-white opacity-50"></div>
+          <blockquote className="text-lg italic opacity-90 mt-8 p-6 bg-white/10 rounded-lg backdrop-blur-sm">
+            "In this digital space, every interaction is a moment of connection,
+            shaping the experience of our shared virtual world"
+            <footer className="mt-2 text-sm font-medium text-right">
+              - Gather Town
+            </footer>
+          </blockquote>
         </div>
       </div>
 
       {/* Right Column - Registration Form (55%) */}
-      <div className="flex w-full flex-col bg-white p-4 md:w-[55%] md:px-52 md:py-30">
-        {/* Back Button */}
-        <Link
-          href="#"
-          className="mb-12 flex items-center text-gray-500 hover:text-gray-700"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          <span>Back</span>
-        </Link>
+      <div className="flex flex-col items-center justify-center w-full p-8 md:p-10 lg:p-16 md:w-[55%] bg-white">
+        <div className="w-full max-w-md">
+           <Link
+            href="/"
+            className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-8 group"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4 group-hover:translate-x-[-2px] transition-transform" />
+            Back
+          </Link>
 
-        {/* Form Header */}
-        <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold">
+          <h1 className="text-3xl font-bold text-gray-800 mb-3">
             Register Individual Account!
           </h1>
-          <p className="text-gray-500">
-            For the purpose of gamers regulation, your details are required.
+          <p className="text-gray-500 mb-8">
+            Join the gaming community and enjoy exclusive benefits.
           </p>
-        </div>
 
-        {/* Registration Form */}
-        <form onSubmit={handleSubmitSignUp} className="space-y-6">
-          <div className="space-y-2">
-            <label htmlFor="email" className="block font-medium">
-              Email address<span className="text-red-500">*</span>
-            </label>
-            <Input
-              id="email"
-              type="email"
-              name="email"
-              placeholder="Enter email address"
-              className="w-full rounded-md border p-3"
-              required
-            />
-          </div>
+          <form className="space-y-6" onSubmit={handleSubmitSignUp}>
+            <div className="space-y-4">
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Full Name
+                </label>
+                <Input
+                  id="name"
+                  name="name"
+                  placeholder="Your Name"
+                  className="h-12 text-base"
+                  required
+                />
+              </div>
 
-          <div className="space-y-2">
-            <label htmlFor="password" className="block font-medium">
-              Create password<span className="text-red-500">*</span>
-            </label>
-            <Input
-              id="password"
-              type="password"
-              name="password"
-              placeholder="Password"
-              className="w-full rounded-md border p-3"
-              required
-            />
-          </div>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Email Address
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  name="email"
+                  placeholder="Enter email address"
+                  className="h-12 text-base"
+                  required
+                />
+              </div>
 
-          <div className="space-y-2">
-            <label htmlFor="repeat-password" className="block font-medium">
-              Repeat password<span className="text-red-500">*</span>
-            </label>
-            <Input
-              id="repeat-password"
-              type="password"
-              name="repeat-password"
-              placeholder="Repeat password"
-              className="w-full rounded-md border p-3"
-              required
-            />
-          </div>
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Password
+                </label>
+                <Input
+                  id="password"
+                  type="password"
+                  name="password"
+                  placeholder="Enter password"
+                  className="h-12 text-base"
+                  required
+                />
+              </div>
 
-          <div className="flex items-start space-x-2">
-            <Checkbox
-              name="terms"
-              id="terms"
-              className="mt-1 h-4 w-4 rounded border-gray-300 text-[#0052cc]"
-            />
-            <label htmlFor="terms" className="text-sm text-gray-600">
-              I agree to terms & conditions
-            </label>
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full bg-[#0052cc] py-3 text-white transition-all hover:bg-[#0041a3] hover:scale-[1.02]"
-          >
-            Register Account
-          </Button>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
+              <div>
+                <label
+                  htmlFor="repeat-password"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Confirm Password
+                </label>
+                <Input
+                  id="repeat-password"
+                  type="password"
+                  name="repeat-password"
+                  placeholder="Repeat password"
+                  className="h-12 text-base"
+                  required
+                />
+              </div>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-4 text-gray-500">Or</span>
-            </div>
-          </div>
 
-          <button
-            type="button"
-            className="flex w-full items-center justify-center gap-3 rounded-md border border-gray-300 bg-white p-3 text-gray-700 shadow-sm transition-all hover:shadow-md"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="20"
-              height="20"
-              xmlns="http://www.w3.org/2000/svg"
+            <div className="flex items-center space-x-2 py-2">
+              <Checkbox id="terms" name="terms" required />
+              <label htmlFor="terms" className="text-sm text-gray-600">
+                I agree to the{" "}
+                <Link href="/terms" className="text-blue-600 hover:underline">
+                  terms & conditions
+                </Link>
+              </label>
+            </div>
+
+            <Button
+              className="w-full h-12 text-base font-medium bg-blue-600 hover:bg-blue-700 text-white"
+              type="submit"
             >
-              <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
-                <path
-                  fill="#4285F4"
-                  d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"
-                />
-              </g>
-            </svg>
-            <span>Register with Google</span>
-          </button>
-        </form>
+              Create Account
+            </Button>
+
+            <div className="mt-6 text-center text-sm">
+              <p className="text-gray-600">
+                Already have an account?{" "}
+                <Link
+                  href="/signin"
+                  className="text-blue-600 font-medium hover:underline"
+                >
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

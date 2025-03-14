@@ -1,54 +1,74 @@
-'use client'
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { Eye } from "lucide-react";
 import { FormEvent, useCallback } from "react";
 import { toast } from "sonner";
 
+
+import { userSchemaSignIn } from "@/app/schemas/userSchema";
+
+
 export default function RegistrationPage() {
-    const handleSubmitsignIn = useCallback(async(e:FormEvent<HTMLFormElement>) =>
-    {   e.preventDefault()
-        const formData = new FormData();
-     
-        console.log((e.currentTarget.elements.namedItem("email") as HTMLInputElement).value)
-        formData.append("email", (e.currentTarget.elements.namedItem("email") as HTMLInputElement)?.value );
-        formData.append("password", (e.currentTarget.elements.namedItem("password") as HTMLInputElement)?.value );
-       
-       
-        try {
-            
-            const res = await fetch("http://localhost:5000/api/auth/login", {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json",
-                },body:JSON.stringify({email:formData.get("email"),password:formData.get("password")}),   
-            }).then((res) => {
-                if (!res.ok)
-                {
-                    throw new Error(res.statusText);
-                }
-                console.log(res.headers.get("Authorization")?.split(" ")[1])
-                toast.success("Login successful",
-                    {
-                        style: { backgroundColor: "#66C266", color: "white" }, 
-                    }
-                );
-                return res.json()
-            })
-        } catch (err)
-        {
-            console.log(err)
-            toast.error("Something went wrong!", {
-              //  description: "Please check your input and try again.",
-              
-                style: { backgroundColor: "#FF5252", color: "white" }, 
-              });
-        }
-        
-        
-       
-        
-        }, [])
+  const handleSubmitsignIn = useCallback(
+    async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget as HTMLFormElement);
+      const name = formData.get("name");
+      const email = formData.get("email");
+      const password = formData.get("password");
+
+      console.log(email);
+      console.log(password);
+      console.log(name);
+      const nameValidation = userSchemaSignIn.pick({ email: true }).safeParse({ email });
+      const passwordValidation=userSchemaSignIn.pick({ password: true }).safeParse({ password });
+      console.log(nameValidation)
+      console.log(passwordValidation)
+      if(!nameValidation.success){
+        toast.error("Not a valid email format", {
+          style: { backgroundColor: "#FF5252", color: "white" },
+          duration: 6000,
+        });
+      }
+      if (!passwordValidation.success) {
+        toast.error("Password must be at least 8 characters", {
+          style: { backgroundColor: "#FF5252", color: "white" },
+          duration: 6000,
+        });
+      }
+
+      try {
+        const res = await fetch("http://localhost:5000/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.get("email"),
+            password: formData.get("password"),
+          }),
+        }).then((res) => {
+          if (!res.ok) {
+            throw new Error(res.statusText);
+          }
+          console.log(res.headers.get("Authorization")?.split(" ")[1]);
+          toast.success("Login successful", {
+            style: { backgroundColor: "#66C266", color: "white" },
+          });
+          return res.json();
+        });
+      } catch (err) {
+        console.log(err);
+        toast.error("Something went wrong!", {
+          //  description: "Please check your input and try again.",
+
+          style: { backgroundColor: "#FF5252", color: "white" },
+        });
+      }
+    },
+    []
+  );
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="flex w-full max-w-7xl flex-col md:flex-row shadow-lg rounded-xl overflow-hidden">
@@ -95,9 +115,11 @@ export default function RegistrationPage() {
           <div className="mx-auto w-full max-w-md">
             {/* Heading */}
             <div className="mb-8 text-center">
-              <h1 className="mb-2 text-3xl font-bold mb-2">Step into your virtual office!</h1>
+              <h1 className="mb-2 text-3xl font-bold mb-2">
+                Step into your virtual office!
+              </h1>
               <p className="text-gray-500">
-              Work, meet, and collaborate in an immersive online workspace
+                Work, meet, and collaborate in an immersive online workspace
               </p>
             </div>
 
@@ -113,6 +135,7 @@ export default function RegistrationPage() {
 
             {/* Registration Form */}
             <form onSubmit={handleSubmitsignIn} className="space-y-6">
+              
               <div>
                 <label
                   htmlFor="email"
@@ -128,6 +151,8 @@ export default function RegistrationPage() {
                   className="w-full rounded-xl border border-gray-200 p-4 text-gray-600 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
+
+             
 
               <div>
                 <label
@@ -152,7 +177,6 @@ export default function RegistrationPage() {
                   </button>
                 </div>
                 {/* Password Strength Indicator */}
-                
               </div>
 
               {/* Checkboxes */}
