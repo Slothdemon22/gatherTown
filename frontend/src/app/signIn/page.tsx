@@ -78,9 +78,7 @@ export default function RegistrationPage() {
             {/* Left Column - Brand Identity - Centered Content */}
             <div className="flex w-full flex-col items-center justify-center p-8 md:p-16 lg:w-1/2 bg-gray-50 gap-12">
                {/* Logo */}
-               <div>
-                 
-               </div>
+               <div></div>
 
                {/* Quote Box */}
                <div>
