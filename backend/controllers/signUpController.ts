@@ -2,16 +2,20 @@ import { RequestHandler } from "express";
 import bcrypt from "bcryptjs";
 import User from "../models/UserModel";
 import jwt from "jsonwebtoken";
+import { userSignUpSchema } from "../schemas/userSchemas"
+
 
 export const register: RequestHandler = async (req, res) => {
   console.log("in register");
   console.log(req.body);
-
-  const { name, email, password } = req.body;
-   if (!name || !email || !password) {
-     res.status(400).json({ message: "All fields (name, email, password) are required" });
-     return;
+  const parsedBody = userSignUpSchema.safeParse(req.body);
+  if (!parsedBody.success)
+  {
+    res.status(400).json({ message: "Error while parsing data", status: 400 });
+    return;
   }
+
+  const {name, email, password } = req.body;
 
   try {
     
@@ -32,9 +36,10 @@ export const register: RequestHandler = async (req, res) => {
 
     await newUser.save();
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET as string);
-    res.setHeader("Authorization", `Bearer ${token}`);
+    
      res.status(201).json({
-      message: "User created successfully"
+       message: "User created successfully",
+       token:token
       
     });
   } catch (err) {

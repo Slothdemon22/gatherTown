@@ -38,8 +38,12 @@ export default function SigninForm() {
 
       if (!res.ok) throw new Error(res.statusText);
 
-      toast.success('Login successful', { style: { backgroundColor: '#66C266', color: 'white' } });
-      return res.json();
+      toast.success('Login successful', { style: { backgroundColor: '#66C266', color: 'white' } }); 
+      const result =await res.json();
+      console.log(result);
+      localStorage.setItem("token", result.token);
+      
+     
     } catch (err) {
       console.log(err);
       toast.error('Something went wrong!', {

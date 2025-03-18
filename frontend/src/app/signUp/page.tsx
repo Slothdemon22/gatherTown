@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import SignUpForm from '../components/signUpform';
 
+
 export default function RegistrationPage() {
   return (
     <div className="flex min-h-screen flex-col md:flex-row">

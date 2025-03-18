@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { userSchemaSignUp } from '../schemas/userSchema';
 
+
 export default function SignUpForm() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
@@ -52,6 +53,9 @@ export default function SignUpForm() {
       const data = await response.json();
       toast.success('Account created successfully!');
       console.log(data);
+      localStorage.setItem("token", data.token);
+
+  ;
     } catch (error) {
       console.error(error);
       toast.error('Account creation failed');

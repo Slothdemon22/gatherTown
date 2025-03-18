@@ -54,12 +54,22 @@ describe('User tests block', () =>
     
     })
     console.log(response.status);
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(400);
   })
   test("test invalid password", async () => {
     const response=await api.post(`${url}/auth/login`,{
       email:userObject.email,
       password:"invalid password"
+    
+    })
+
+    console.log(response.status);
+    expect(response.status).toBe(400);
+  })
+  test("test incomplete login details", async () => {
+    const response=await api.post(`${url}/auth/login`,{
+      
+      password: "invalid password"
     
     })
     console.log(response.status);
