@@ -1,15 +1,13 @@
-"use client";
-
-import Hero from "./components/Hero";
-import SectionOne from "./components/SectionOne";
-import SectionTwo from "./components/SectionTwo";
+import Hero from '@/app/components/Hero';
+import SectionOne from '@/app/components/SectionOne';
+import SectionTwo from '@/app/components/SectionTwo';
 
 export default function HomePage() {
-   return (
-      <>
-         <Hero />
-         <SectionOne />
-         <SectionTwo />
-      </>
-   );
+  return (
+    <>
+      <Hero />
+      <SectionOne />
+      <SectionTwo />
+    </>
+  );
 }
